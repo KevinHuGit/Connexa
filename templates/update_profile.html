@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Profile - FinkedIn</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f3f2ef;
+      color: #000000;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 16px;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15), 0 2px 3px rgba(0, 0, 0, 0.2);
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #0a66c2;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #0a66c2;
+      box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.2);
+    }
+
+    button {
+      background-color: #0a66c2;
+      color: #ffffff;
+      border: none;
+      border-radius: 24px;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #004182;
+    }
+
+    .input-icon {
+      position: relative;
+    }
+
+    .input-icon input {
+      padding-left: 40px;
+    }
+
+    .input-icon svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      color: #666666;
+    }
+
+    .profile-picture {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 16px;
+      display: block;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .file-label {
+      display: inline-block;
+      padding: 8px 16px;
+      background-color: #0a66c2;
+      color: #ffffff;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .file-label:hover {
+      background-color: #004182;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Update Profile</h1>
+      <form id="updateProfileForm" enctype="multipart/form-data">
+        <!-- Hidden input for user ID -->
+        <input type="hidden" id="user_id" name="user_id" value="{{ .UserID }}">
+
+        <div class="form-group">
+          <img id="profilePicture" src="{{ .ProfilePicture }}" alt="Profile Picture" class="profile-picture">
+          <input type="file" id="profilePictureInput" name="profile_picture" accept="image/*" class="file-input">
+          <label for="profilePictureInput" class="file-label">Change Profile Picture</label>
+        </div>
+
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" value="{{ .Username }}">
+        </div>
+        <div class="form-group">
+          <label for="job">Job Title</label>
+          <div class="input-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+            </svg>
+            <input type="text" id="job" name="job" value="Software Engineer">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="location">Location</label>
+          <div class="input-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            <input type="text" id="location" name="location" value="San Francisco, CA">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="about">About</label>
+          <textarea id="about" name="about" rows="4">{{ .About }}</textarea>
+        </div>
+        <button type="submit">Update Profile</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('profilePictureInput').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.getElementById('profilePicture').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('updateProfileForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+
+      // Make the POST request to update the user's profile
+      fetch(`/user/{{ .UserID }}/update_profile`, {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to update profile');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Updated profile:', data);
+          alert('Profile updated successfully!');
+          setTimeout(() => {
+            window.location.href = `/user/${data.userId}`;
+          }, 500);
+        })
+        .catch(error => {
+          console.error(error);
+          alert('An error occurred while updating the profile.');
+        });
+    });
+  </script>
+</body>
+
+</html>

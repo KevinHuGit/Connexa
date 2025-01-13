@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Your FinkedIn Profile</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f3f2ef;
+      color: #000000;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1128px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 8px 0;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #0a66c2;
+      text-decoration: none;
+    }
+
+    main {
+      padding: 24px 0;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15), 0 2px 3px rgba(0, 0, 0, 0.2);
+      margin-bottom: 24px;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 24px;
+      color: #0a66c2;
+    }
+
+    form {
+      display: grid;
+      gap: 16px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="file"],
+    textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: #0a66c2;
+      color: #ffffff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 24px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #004182;
+    }
+
+    #message {
+      margin-top: 16px;
+      font-weight: bold;
+    }
+
+    .error {
+      color: #d11124;
+      font-size: 0.875rem;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container header-content">
+      <a href="/" class="logo">FinkedIn</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h1>Create Your FinkedIn Profile</h1>
+      <form id="create-profile-form">
+        <div>
+          <label for="username">Full Name:</label>
+          <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div>
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required>
+          <div class="error" id="password-error"></div>
+        </div>
+        <div>
+          <label for="profile_picture">Profile Picture:</label>
+          <input type="file" id="profile_picture" name="profile_picture" accept="image/*" class="file-input">
+        </div>
+        <div>
+          <label for="location">Location:</label>
+          <input type="text" id="location" name="location" required>
+        </div>
+        <div>
+          <label for="about">About:</label>
+          <input type="text" id="about" name="about" required>
+        </div>
+        <div>
+          <label for="experience">Experience:</label>
+          <textarea id="experience" name="experience" rows="4"></textarea>
+        </div>
+        <div>
+          <label for="education">Education:</label>
+          <textarea id="education" name="education" rows="4"></textarea>
+        </div>
+        <div>
+          <label for="skills">Skills (comma-separated):</label>
+          <input type="text" id="skills" name="skills">
+        </div>
+        <div>
+          <button type="submit">Create Profile</button>
+        </div>
+      </form>
+      <div id="message"></div>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('create-profile-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      // Reset any previous error messages
+      document.getElementById('message').textContent = '';
+      document.getElementById('password-error').textContent = '';
+
+      const profilePictureInput = document.getElementById('profile_picture');
+      const file = profilePictureInput.files[0];
+
+      // Check if a file was selected
+      if (file) {
+        // Create a FileReader object to read the file as data URL (base64)
+        const reader = new FileReader();
+        reader.onloadend = function () {
+          // After the file is read, get the base64 data
+          const base64String = reader.result.split(',')[1];  // Remove the data URL prefix
+
+          // Now, create a data object with all form values
+          const data = {
+            username: document.getElementById('username').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+            profile_picture: base64String,  // Include base64 image string
+            location: document.getElementById('location').value,
+            about: document.getElementById('about').value,
+            education: document.getElementById('education').value,
+            skills: document.getElementById('skills').value
+          };
+
+          // Basic validation
+          if (data.password.length < 6) {
+            document.getElementById('password-error').textContent = 'Password must be at least 6 characters long';
+            return;
+          }
+
+          // Submit the data to the backend
+          fetch('/create_profile', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          })
+            .then(response => response.json())
+            .then(data => {
+              const messageDiv = document.getElementById('message');
+              if (data.message && data.userId) {
+                messageDiv.textContent = data.message;
+                messageDiv.style.color = '#0a66c2';
+                // Redirect to user profile page after successful creation
+                setTimeout(() => {
+                  window.location.href = `/user/${data.userId}`;
+                }, 1000);
+              } else {
+                messageDiv.textContent = data.error || 'Failed to create profile.';
+                messageDiv.style.color = '#d11124';
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              const messageDiv = document.getElementById('message');
+              messageDiv.textContent = 'An error occurred. Please try again.';
+              messageDiv.style.color = '#d11124';
+            });
+        };
+
+        // Read the file as a data URL
+        reader.readAsDataURL(file);
+      } else {
+        alert('Please select a profile picture');
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ .Username }}'s Profile</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f3f2ef;
+      color: #000000;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1128px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 8px 0;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #0a66c2;
+      text-decoration: none;
+    }
+
+    nav {
+      display: none;
+    }
+
+    @media (min-width: 768px) {
+      nav {
+        display: flex;
+        gap: 16px;
+      }
+    }
+
+    nav a {
+      color: #666666;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      color: #000000;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    main {
+      padding: 24px 0;
+    }
+
+    .profile-grid {
+      display: grid;
+      gap: 24px;
+    }
+
+    @media (min-width: 768px) {
+      .profile-grid {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+
+    .card {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15), 0 2px 3px rgba(0, 0, 0, 0.2);
+      margin-bottom: 24px;
+    }
+
+    .card-header {
+      height: 96px;
+      background-image: linear-gradient(to right, #0077b5, #0a66c2);
+      border-radius: 8px 8px 0 0;
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    .profile-photo {
+      width: 152px;
+      height: 152px;
+      border: 4px solid #ffffff;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-top: -76px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-top: 24px;
+    }
+
+    .headline {
+      color: #666666;
+      margin-bottom: 8px;
+    }
+
+    .location {
+      color: #666666;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .button {
+      padding: 6px 16px;
+      border-radius: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .button-primary {
+      background-color: #0a66c2;
+      color: #ffffff;
+      border: none;
+    }
+
+    .button-secondary {
+      background-color: #ffffff;
+      color: #666666;
+      border: 1px solid #666666;
+    }
+
+    .section-title {
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    .experience-item,
+    .education-item {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .icon {
+      width: 48px;
+      height: 48px;
+      color: #666666;
+    }
+
+    .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .skill-badge {
+      background-color: #f3f2ef;
+      color: #0a66c2;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .people-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .people-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .people-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    #chatbot-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #0077b5;
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+
+    #chatbot-toggle:hover {
+      background-color: #006097;
+    }
+
+    #chatbot {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 320px;
+      height: 480px;
+      background-color: #f3f2ef;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1000;
+    }
+
+    #chatbot-header {
+      background-color: #0077b5;
+      color: white;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+    }
+
+    #chatbot-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #chatbot-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+    }
+
+    #chatbot-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    #chatbot-messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 12px;
+      background-color: #ffffff;
+    }
+
+    .message {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .message-content {
+      max-width: 70%;
+      padding: 8px 12px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .message.bot .message-content {
+      background-color: #e5e5ea;
+      color: #000000;
+      border-top-left-radius: 4px;
+    }
+
+    .message.user .message-content {
+      background-color: #007aff;
+      color: #ffffff;
+      border-top-right-radius: 4px;
+    }
+
+    #chatbot-input {
+      display: flex;
+      padding: 12px;
+      background-color: #ffffff;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    #user-input {
+      flex-grow: 1;
+      border: 1px solid #e0e0e0;
+      border-radius: 20px;
+      padding: 8px 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    #user-input:focus {
+      border-color: #007aff;
+      box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+    }
+
+    #send-button {
+      background-color: #007aff;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      margin-left: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #send-button:hover {
+      background-color: #0056b3;
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      background-color: #e5e5ea;
+      border-radius: 18px;
+      width: fit-content;
+    }
+
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background-color: #999999;
+      border-radius: 50%;
+      animation: typing 1s infinite ease-in-out;
+    }
+
+    .typing-indicator span:nth-child(1) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(2) {
+      animation-delay: 0.4s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+
+    @keyframes typing {
+      0% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+
+      100% {
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container header-content">
+      <a href="/" class="logo">FinkedIn</a>
+      <nav>
+        <a href="#">Home</a>
+        <a href="#">My Network</a>
+        <a href="#">Jobs</a>
+        <a href="#">Messaging</a>
+        <a href="#">Notifications</a>
+      </nav>
+      <img src="{{ .ProfilePicture }}" alt="{{ .Username }}" class="avatar">
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="profile-grid">
+      <div class="profile-main">
+        <section class="card">
+          <div class="card-header"></div>
+          <div class="card-body">
+            <img src="{{ .ProfilePicture }}" alt="Profile Picture" class="profile-photo">
+            <h1>{{ .Username }}</h1>
+            <p class="headline">Looking for Work!</p>
+            <p class="location">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              {{ .Location }}
+            </p>
+            <div class="button-group">
+              <a href="#" class="button button-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z" />
+                </svg>
+                Message
+              </a>
+              <a href="#" class="button button-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <line x1="19" x2="19" y1="8" y2="14" />
+                  <line x1="22" x2="16" y1="11" y2="11" />
+                </svg>
+                Connect
+              </a>
+              <a href="#" class="button button-secondary">More</a>
+              <a href="{{ .UserID }}/update_profile" class="button button-secondary">Edit Profile</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-body">
+            <h2 class="section-title">About</h2>
+            <p>{{ .About }}</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-body">
+            <h2 class="section-title">Experience</h2>
+            <div class="experience-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+              </svg>
+              <div>
+                <h3>Senior Software Engineer</h3>
+                <p>TechCorp Inc.</p>
+                <p>Jan 2020 - Present · 3 yrs 5 mos</p>
+              </div>
+            </div>
+            <div class="experience-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+              </svg>
+              <div>
+                <h3>Software Engineer</h3>
+                <p>InnoSoft Solutions</p>
+                <p>Jun 2017 - Dec 2019 · 2 yrs 7 mos</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-body">
+            <h2 class="section-title">Education</h2>
+            <div class="education-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                <path d="M6 12v5c3 3 9 3 12 0v-5" />
+              </svg>
+              <div>
+                <h3>Bachelor of Science in Computer Science</h3>
+                <p>{{ .Education }}</p>
+                <p>2013 - 2017</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="profile-sidebar">
+        <section class="card">
+          <div class="card-body">
+            <h2 class="section-title">Skills</h2>
+            <div class="skills-list">
+              <span class="skill-badge">React</span>
+              <span class="skill-badge">Node.js</span>
+              <span class="skill-badge">JavaScript</span>
+              <span class="skill-badge">TypeScript</span>
+              <span class="skill-badge">AWS</span>
+              <span class="skill-badge">Docker</span>
+              <span class="skill-badge">GraphQL</span>
+              <span class="skill-badge">MongoDB</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-body">
+            <h2 class="section-title">People also viewed</h2>
+            <div class="people-list">
+              <div class="people-item">
+                <img src="https://i.pravatar.cc/150?img=11" alt="User 1" class="people-avatar">
+                <div>
+                  <h3>User 1</h3>
+                  <p>Software Engineer</p>
+                </div>
+              </div>
+              <div class="people-item">
+                <img src="https://i.pravatar.cc/150?img=12" alt="User 2" class="people-avatar">
+                <div>
+                  <h3>User 2</h3>
+                  <p>Software Engineer</p>
+                </div>
+              </div>
+              <div class="people-item">
+                <img src="https://i.pravatar.cc/150?img=13" alt="User 3" class="people-avatar">
+                <div>
+                  <h3>User 3</h3>
+                  <p>Software Engineer</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <button id="chatbot-toggle">💬</button>
+  <div id="chatbot">
+    <div id="chatbot-header">
+      <div id="chatbot-title">
+        <img id="chatbot-avatar" src="{{ .ProfilePicture }}" alt="{{ .Username }}">
+        <span>Chat with {{ .Username }}</span>
+      </div>
+      <button id="chatbot-close">&times;</button>
+    </div>
+    <div id="chatbot-messages"></div>
+    <div id="chatbot-input">
+      <input type="text" id="user-input" placeholder="Type your message...">
+      <button id="send-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const chatbotToggle = document.getElementById('chatbot-toggle');
+    const chatbot = document.getElementById('chatbot');
+    const chatbotClose = document.getElementById('chatbot-close');
+    const chatbotMessages = document.getElementById('chatbot-messages');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+
+    let isOpen = false;
+
+    function toggleChatbot() {
+      isOpen = !isOpen;
+      chatbot.style.display = isOpen ? 'flex' : 'none';
+      if (isOpen) {
+        userInput.focus();
+      }
+    }
+
+    chatbotToggle.addEventListener('click', toggleChatbot);
+    chatbotClose.addEventListener('click', toggleChatbot);
+
+    function addMessage(content, isUser = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message');
+      messageDiv.classList.add(isUser ? 'user' : 'bot');
+
+      const messageContent = document.createElement('div');
+      messageContent.classList.add('message-content');
+      messageContent.textContent = content;
+
+      messageDiv.appendChild(messageContent);
+      chatbotMessages.appendChild(messageDiv);
+      chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      const typingDiv = document.createElement('div');
+      typingDiv.classList.add('message', 'bot');
+      typingDiv.innerHTML = `
+        <div class="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      `;
+      chatbotMessages.appendChild(typingDiv);
+      chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+      return typingDiv;
+    }
+
+    function removeTypingIndicator(element) {
+      chatbotMessages.removeChild(element);
+    }
+
+    async function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      addMessage(message, true);
+      userInput.value = '';
+
+      const typingIndicator = showTypingIndicator();
+
+      try {
+        const response = await fetch(`/user/{{ .UserID }}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: message })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setTimeout(() => {
+            removeTypingIndicator(typingIndicator);
+            addMessage(data.reply);
+          }, 1000);
+        } else {
+          throw new Error('Failed to fetch response');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        setTimeout(() => {
+          removeTypingIndicator(typingIndicator);
+          addMessage('Sorry, there was an error. Please try again.');
+        }, 1000);
+      }
+    }
+
+    sendButton.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Initial message
+    addMessage('Hi! Is there anything you want to know about me?');
+  </script>
+</body>
+
+</html>
